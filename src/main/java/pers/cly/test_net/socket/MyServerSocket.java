@@ -1,13 +1,10 @@
 package pers.cly.test_net.socket;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,14 +39,21 @@ public class MyServerSocket {
 
                 //线程池中拿取一条线程来处理socket连接。然后主程序运行下一个循环，继续等待下一个客户端的访问。
                 pool.execute(new Runnable() {
-                    //测试：将当前时间写入流中
                     public void run() {
                         try {
+                            //从输入流中读取获取客户端传过来的值
+                            InputStream inputStream= connection.getInputStream();
+                            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+                            String client_info = null;
+                            while((client_info=br.readLine())!=null){
+                                System.out.println("客户端传过来的值："+client_info);
+                            }
+
+                            //测试：将当前时间写入流中返回给客户端
                             Writer writer = new OutputStreamWriter(connection.getOutputStream());
                             String nowData = new Date().toString();
-                            writer.write(nowData);
+                            writer.write("服务端当前时间为——"+nowData);
                             writer.flush();
-                            System.out.println(nowData);
                         } catch (IOException e) {
                             e.printStackTrace();
                         } finally {
